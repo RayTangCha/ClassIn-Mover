@@ -1,8 +1,8 @@
 # ClassIn-Mover
 
-A C++ program to move `ClassIn` classroom window in order to exit from focused learning mode.
+A program to move `ClassIn` classroom window in order to exit from focused learning mode.
 
-Supported `ClassIn` version: `3.0.2.130` to `3.0.5.1`, as well as `3.0.7.x`. (ClassIn prior to `3.0.2.130` does not have focused learning mode at all)
+Supported `ClassIn` version: `3.0.2.130` to `3.0.5.1`, as well as `3.0.7.x`. (`ClassIn` prior to `3.0.2.130` does not have focused learning mode at all)
 
 Maybe the program will lose efficacy in the future versions.
 
@@ -22,6 +22,6 @@ If working well, the program should output one line of log each second, showing 
 
 - Occasionally the program will not work, please exit the classroom and retry.
 
-- The program will only apply changes to one classroom if you open two or more at the same time.
+- The program will only patch one classroom window if you open two or more at the same time.
 
   This is not a big matter, since few people need to login into multiple accounts at once.
