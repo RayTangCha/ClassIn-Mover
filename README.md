@@ -22,6 +22,6 @@ If working well, the program should output one line of log each second, showing 
 
 - Occasionally the program will not work, please exit the classroom and retry.
 
-- The program will only apply changes to one classroom, if you open two or more at the same time.
+- The program will only apply changes to one classroom if you open two or more at the same time.
 
   This is not a big matter, since few people need to login into multiple accounts at once.
