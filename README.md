@@ -20,7 +20,7 @@ If working well, the program should output one line of log each second, showing 
 
 - The patched classroom window will still be maximized, but you can place other windows above it or simply switch to another window.
 
-- Occasionally the program will not work, please exit the classroom and retry.
+- Occasionally the program will not work, please reopen `ClassIn` and this program.
 
 - The program will only patch one classroom window if you open two or more at the same time.
 
