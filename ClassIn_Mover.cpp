@@ -71,16 +71,17 @@ BOOL CALLBACK RefreshWindow(HWND hwnd, LPARAM Title)
     return TRUE;
 }
 
-void SleepUntilNext(int ms) {
+long long CurrentTime() {
     timeval tmp;
     mingw_gettimeofday(&tmp, NULL);
-    long long now = tmp.tv_sec * 1000 + tmp.tv_usec / 1000;
-    Sleep(ms - now % ms);
+    return tmp.tv_sec * 1000LL + tmp.tv_usec / 1000LL;
 }
+
+#define SleepUntilNext(ms) Sleep((ms) - CurrentTime() % (ms))
 
 int main()
 {
-    puts("ClassIn Mover v1.0.1");
+    puts("ClassIn Mover v1.0.2");
     puts("Copyright (C) 2020  Weiqi Gao, Jize Guo");
     puts("Visit https://github.com/CarlGao4/ClassIn-Mover for more information.\n");
     RECT rect;
@@ -102,18 +103,19 @@ int main()
             SleepUntilNext(1000);
             continue;
         }
-        for(int i = 0; i < 10; i++)
+        while(CurrentTime() % 1000 <= 800)
         {
             GetWindowRect(ClassroomHwnd, &rect);
             SetWindowPos(ClassroomHwnd, HWND_NOTOPMOST, rect.left, rect.top,
                 rect.right - rect.left, rect.bottom - rect.top, SWP_NOSENDCHANGING);
             GetWindowPlacement(ClassroomHwnd, &wp);
-            if (wp.showCmd != SW_MAXIMIZE && wp.showCmd != SW_MINIMIZE)
+            if(wp.showCmd != SW_MAXIMIZE && wp.showCmd != SW_MINIMIZE)
             {
                 ShowWindow(ClassroomHwnd, SW_MINIMIZE);
                 ShowWindow(ClassroomHwnd, SW_MAXIMIZE);
             }
-            SleepUntilNext(100);
+			Sleep(50);
         }
+        SleepUntilNext(1000);
     }
 }
