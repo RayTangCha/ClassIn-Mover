@@ -1,5 +1,8 @@
 {
     "Version": 16777218,
     "Version_str": "v1.0.2",
-    "Link": ""
+    "Link": [
+        "",
+        "https://github.com/CarlGao4/ClassIn-Mover/releases/download/v1.0.2/classin_mover_v1.0.2.exe"
+    ]
 }
