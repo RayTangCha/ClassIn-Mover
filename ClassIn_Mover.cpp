@@ -26,15 +26,16 @@
 
 HWND ClassroomHwnd;
 bool FoundWindow;
+char title[1024];
 
 BOOL CALLBACK RefreshWindow(HWND hwnd, LPARAM Title)
 {
     PROCESSENTRY32 pe32;
-    pe32.dwSize = sizeof(pe32);
+    pe32.dwSize = sizeof pe32;
     time_t tmp = time(0);
     tm *now = localtime(&tmp);
     TCHAR caption[1024];
-    memset(caption, 0, sizeof(caption));
+    memset(caption, 0, 1024);
     GetWindowText(hwnd, caption, 1024);
     DWORD pid;
     if(strlen(caption) && strstr(caption, "Classroom_") && !FoundWindow)
@@ -60,11 +61,11 @@ BOOL CALLBACK RefreshWindow(HWND hwnd, LPARAM Title)
             bMore = ::Process32Next(hProcessSnap, &pe32);
         }
         char path[MAX_PATH];
-        memcpy(path, pe32.szExeFile, MAX_PATH);
+        strcpy(path, pe32.szExeFile);
         strlwr(path);
         if(!flag || !strstr(path, "classin"))
             return TRUE;
-        printf("[%s] Classroom window is found: HWND=%d title=%s\n", FormattedTime, hwnd, caption);
+        strcpy(title, caption);
         ClassroomHwnd = hwnd;
         FoundWindow = true;
     }
@@ -77,11 +78,24 @@ long long CurrentTime() {
     return tmp.tv_sec * 1000LL + tmp.tv_usec / 1000LL;
 }
 
+void GetWindowCmd(UINT showCmd, char *ReturnValue)
+{
+    switch(showCmd) {
+        case SW_MINIMIZE: strcpy(ReturnValue, "Minimized");
+                          break;
+        case SW_MAXIMIZE: strcpy(ReturnValue, "Maximized");
+                          break;
+        case SW_NORMAL:   strcpy(ReturnValue, "Normal");
+                          break;
+        default: sprintf(ReturnValue, "%d", showCmd);
+    }
+}
+
 #define SleepUntilNext(ms) Sleep((ms) - CurrentTime() % (ms))
 
 int main()
 {
-    puts("ClassIn Mover v1.0.2");
+    puts("ClassIn Mover v1.0.3");
     puts("Copyright (C) 2020  Weiqi Gao, Jize Guo");
     puts("Visit https://github.com/CarlGao4/ClassIn-Mover for more information.\n");
     RECT rect;
@@ -89,33 +103,42 @@ int main()
     GetWindowRect(hwnd, &rect);
     WINDOWPLACEMENT wp;
     wp.length = sizeof(WINDOWPLACEMENT);
+    int processes;
     while(true)
     {
         FoundWindow = false;
         EnumWindows(RefreshWindow, NULL);
         time_t tmp = time(0);
         tm *now = localtime(&tmp);
+        char FormattedTime[9];
+        strftime(FormattedTime, 9, "%H:%M:%S", now);
         if(!FoundWindow)
         {
-            char FormattedTime[9];
-            strftime(FormattedTime, 9, "%H:%M:%S", now);
             printf("[%s] Cannot find classroom window\n", FormattedTime);
             SleepUntilNext(1000);
             continue;
         }
+        processes = 0;
+        GetWindowPlacement(ClassroomHwnd, &wp);
+        UINT firstStatus = wp.showCmd;
         while(CurrentTime() % 1000 <= 800)
         {
             GetWindowRect(ClassroomHwnd, &rect);
             SetWindowPos(ClassroomHwnd, HWND_NOTOPMOST, rect.left, rect.top,
                 rect.right - rect.left, rect.bottom - rect.top, SWP_NOSENDCHANGING);
             GetWindowPlacement(ClassroomHwnd, &wp);
-            if(wp.showCmd != SW_MAXIMIZE && wp.showCmd != SW_MINIMIZE)
+            if(wp.showCmd != SW_MAXIMIZE && wp.showCmd != SW_MINIMIZE && wp.showCmd != SW_NORMAL)
             {
                 ShowWindow(ClassroomHwnd, SW_MINIMIZE);
                 ShowWindow(ClassroomHwnd, SW_MAXIMIZE);
             }
-			Sleep(50);
+            processes++;
+            Sleep(50);
         }
+        char StatusString[10];
+        GetWindowCmd(firstStatus, StatusString);
+        printf("[%s] Classroom window is found and processed %d times:\n           HWND=%d title=%s status=%s\n",
+            FormattedTime, processes, hwnd, title, StatusString);
         SleepUntilNext(1000);
     }
 }
