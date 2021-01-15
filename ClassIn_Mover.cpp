@@ -1,7 +1,7 @@
 /*
     ClassIn Mover - A program to move ClassIn classroom window in order to
     exit from focused learning mode.
-    Copyright (C) 2020  Weiqi Gao, Jize Guo
+    Copyright (C) 2020-2021  Weiqi Gao, Jize Guo
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -46,7 +46,9 @@ BOOL CALLBACK RefreshWindow(HWND hwnd, LPARAM Title)
         HANDLE hProcessSnap = ::CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
         if(hProcessSnap == INVALID_HANDLE_VALUE)
         {
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED);
             printf("[%s] Failed to excute CreateToolhelp32Snapshot\n", FormattedTime);
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
             return TRUE;
         }
         BOOL bMore = ::Process32First(hProcessSnap, &pe32);
@@ -72,6 +74,25 @@ BOOL CALLBACK RefreshWindow(HWND hwnd, LPARAM Title)
     return TRUE;
 }
 
+bool IsProcessRunAsAdmin()
+{
+    SID_IDENTIFIER_AUTHORITY NtAuthority = SECURITY_NT_AUTHORITY;
+    PSID AdministratorsGroup;
+    BOOL b = AllocateAndInitializeSid(
+        &NtAuthority,
+        2,
+        SECURITY_BUILTIN_DOMAIN_RID,
+        DOMAIN_ALIAS_RID_ADMINS,
+        0, 0, 0, 0, 0, 0,
+        &AdministratorsGroup);
+    if(b)
+    {
+        CheckTokenMembership(NULL, AdministratorsGroup, &b);
+        FreeSid(AdministratorsGroup);
+    }
+    return b == TRUE;
+}
+
 long long CurrentTime() {
     timeval tmp;
     mingw_gettimeofday(&tmp, NULL);
@@ -81,13 +102,11 @@ long long CurrentTime() {
 void GetWindowCmd(UINT showCmd, char *ReturnValue)
 {
     switch(showCmd) {
-        case SW_MINIMIZE: strcpy(ReturnValue, "Minimized");
-                          break;
-        case SW_MAXIMIZE: strcpy(ReturnValue, "Maximized");
-                          break;
-        case SW_NORMAL:   strcpy(ReturnValue, "Normal");
-                          break;
-        default: sprintf(ReturnValue, "%d", showCmd);
+        case (UINT)SW_MINIMIZE: strcpy(ReturnValue, "Minimized");break;
+        case (UINT)SW_SHOWMINIMIZED: strcpy(ReturnValue, "Minimized");break;
+        case (UINT)SW_MAXIMIZE: strcpy(ReturnValue, "Maximized");break;
+        case (UINT)SW_NORMAL: strcpy(ReturnValue, "Normal");break;
+        default: sprintf(ReturnValue, "%d", showCmd);break;
     }
 }
 
@@ -95,9 +114,25 @@ void GetWindowCmd(UINT showCmd, char *ReturnValue)
 
 int main()
 {
-    puts("ClassIn Mover v1.0.3");
-    puts("Copyright (C) 2020  Weiqi Gao, Jize Guo");
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+    puts("ClassIn Mover v1.0.4");
+    puts("Copyright (C) 2020-2021  Weiqi Gao, Jize Guo");
     puts("Visit https://github.com/CarlGao4/ClassIn-Mover for more information.\n");
+    TCHAR szPath[MAX_PATH];
+    ZeroMemory(szPath, MAX_PATH);
+    ::GetModuleFileName(NULL, szPath, MAX_PATH);
+    HINSTANCE res;
+    if(!IsProcessRunAsAdmin())
+    {
+        res = ShellExecute(NULL, "runas", szPath, NULL, NULL, SW_SHOW);
+        if((int)res > 32)
+        {
+            return 0;
+        }
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN);
+        printf("Warning : You do not have administrator's permission running this program. \n\n");
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+    }
     RECT rect;
     HWND hwnd = GetDesktopWindow();
     GetWindowRect(hwnd, &rect);
@@ -127,7 +162,7 @@ int main()
             SetWindowPos(ClassroomHwnd, HWND_NOTOPMOST, rect.left, rect.top,
                 rect.right - rect.left, rect.bottom - rect.top, SWP_NOSENDCHANGING);
             GetWindowPlacement(ClassroomHwnd, &wp);
-            if(wp.showCmd != SW_MAXIMIZE && wp.showCmd != SW_MINIMIZE && wp.showCmd != SW_NORMAL)
+            if(wp.showCmd != SW_MAXIMIZE && wp.showCmd != SW_MINIMIZE && wp.showCmd != SW_SHOWMINIMIZED)
             {
                 ShowWindow(ClassroomHwnd, SW_MINIMIZE);
                 ShowWindow(ClassroomHwnd, SW_MAXIMIZE);
