@@ -2,7 +2,7 @@
 
 A program to move `ClassIn` classroom window in order to exit from focused learning mode.
 
-Supported `ClassIn` version: `3.0.2.130` to `3.0.5.1`, as well as `3.0.7.x`. (`ClassIn` prior to `3.0.2.130` does not have focused learning mode at all)
+Supported `ClassIn` version: `3.0.2.130` to `3.0.5.1`, as well as `3.0.7.x` `4.x`. (`ClassIn` prior to `3.0.2.130` does not have focused learning mode at all)
 
 Maybe the program will lose efficacy in the future versions.
 
