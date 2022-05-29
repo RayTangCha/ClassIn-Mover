@@ -5,12 +5,11 @@
 #include <QMouseEvent>
 bool m_bPressed=false;
 QPoint m_point;
-bool execmode=false,classinmoverexec=false;
+bool execmode=false,classinmoverexec=false,autoclickexec=false;
 
 void ClassOver::mousePressEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::LeftButton)
-    {
+    if (event->button() == Qt::LeftButton){
         m_bPressed = true;
         m_point = event->pos();
     }
@@ -25,7 +24,6 @@ void ClassOver::mouseMoveEvent(QMouseEvent *event)
 void ClassOver::mouseReleaseEvent(QMouseEvent *event)
 {
     Q_UNUSED(event);
-
     m_bPressed = false;
 }
 
@@ -53,6 +51,8 @@ void ClassOver::on_pushButton_clicked()
 void ClassOver::on_pushButton_2_clicked()
 {
     WinExec("taskkill /f /im ClassIn_Mover.exe",SW_HIDE);
+    WinExec("taskkill /f /im AutoClick.exe",SW_HIDE);
+    ui->listWidget->takeItem(0);
     ui->listWidget->takeItem(0);
     classinmoverexec=false;
 }
@@ -79,5 +79,25 @@ void ClassOver::on_comboBox_currentTextChanged(const QString &arg1)
 void ClassOver::on_pushButton_4_clicked()
 {
     ShowWindow(GetForegroundWindow(),SW_MINIMIZE);
+}
+
+
+void ClassOver::on_commandLinkButton_3_clicked()
+{
+    WinExec("C:\\Program Files (x86)\\ClassIn\\ClassIn.exe",SW_MAXIMIZE);
+}
+
+
+void ClassOver::on_commandLinkButton_2_clicked()
+{
+    if(!autoclickexec){
+        ui->listWidget->addItem("AutoClick.exe");
+        if(execmode)WinExec("AutoClick.exe",SW_MINIMIZE);
+        else WinExec("AutoClick.exe",SW_HIDE);
+        Sleep(20000);
+        WinExec("taskkill /f /im AutoClick.exe",SW_HIDE);
+        ui->listWidget->takeItem(1);
+    }
+    autoclickexec=true;
 }
 

@@ -258,9 +258,25 @@
      <rect>
       <x>230</x>
       <y>250</y>
-      <width>241</width>
+      <width>331</width>
       <height>151</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QCommandLinkButton" name="commandLinkButton_3">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>190</y>
+      <width>187</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color:blue;</string>
+    </property>
+    <property name="text">
+     <string>Start ClassIn</string>
     </property>
    </widget>
   </widget>
